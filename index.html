@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chorale</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%237C9070'/><path d='M14 8v11a4.5 4.5 0 1 1-2-3.74V10h6V8h-4z' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage: #7C9070;
+    --sage-light: #A8BDA0;
+    --sage-lighter: #D4E0D0;
+    --sage-lightest: #EEF2EC;
+    --sage-dark: #5A6B52;
+    --text: #2C2C2C;
+    --text-light: #6B6B6B;
+    --text-lighter: #9A9A9A;
+    --bg: #FAFBF9;
+    --white: #FFFFFF;
+    --divider: #D4E0D0;
+    --disabled: #C8C8C8;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* ===== FULL HEADER (scrolls away) ===== */
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    background: var(--white);
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--sage);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+
+  .header .subtitle {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text-light);
+    margin-bottom: 24px;
+  }
+
+  .header-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .header-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s;
+    border: 1.5px solid var(--sage-light);
+    color: var(--sage-dark);
+    background: var(--white);
+  }
+
+  .header-btn:hover {
+    background: var(--sage-lightest);
+    border-color: var(--sage);
+  }
+
+  /* ===== COMPACT HEADER (slides in when scrolled) ===== */
+  .header-compact {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--white);
+    border-bottom: 1px solid var(--divider);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .header-compact.visible {
+    transform: translateY(0);
+  }
+
+  .header-compact h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--sage);
+    white-space: nowrap;
+  }
+
+  .compact-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .compact-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--sage-light);
+    background: var(--white);
+    color: var(--sage-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background 0.25s, border-color 0.25s;
+  }
+
+  .compact-btn:hover {
+    background: var(--sage-lightest);
+    border-color: var(--sage);
+  }
+
+  .compact-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .header-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ===== VOICE SELECTOR ===== */
+  .voice-selector {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 24px 0;
+  }
+
+  .voice-selector > label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 0.01em;
+  }
+
+  .voice-options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    background: none;
+  }
+
+  .voice-options input[type="radio"] {
+    display: none;
+  }
+
+  .voice-options .voice-opt {
+    flex: 0 1 auto;
+    min-width: 90px;
+    text-align: center;
+    padding: 10px 24px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sage);
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+    border: 1.5px solid var(--sage-light);
+    border-radius: 24px;
+    user-select: none;
+    background: var(--white);
+  }
+
+  .voice-options .voice-opt:hover {
+    background: var(--sage-lightest);
+    border-color: var(--sage);
+  }
+
+  .voice-options input[type="radio"]:checked + .voice-opt {
+    background: var(--sage);
+    color: var(--white);
+    border-color: var(--sage);
+    box-shadow: 0 2px 8px rgba(124, 144, 112, 0.3);
+  }
+
+  /* ===== SONG LIST ===== */
+  .song-list {
+    max-width: 640px;
+    margin: 28px auto 0;
+    padding: 0 24px;
+  }
+
+  .song-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--white);
+    transition: background 0.2s;
+  }
+
+  .song-item:first-child {
+    border-radius: 16px 16px 0 0;
+  }
+
+  .song-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .song-item:only-child {
+    border-radius: 16px;
+  }
+
+  .song-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .song-number {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sage-light);
+    min-width: 20px;
+  }
+
+  .song-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .song-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .song-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .song-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
+
+  .action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1.5px solid var(--sage-light);
+    background: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s, border-color 0.25s, color 0.25s, box-shadow 0.25s;
+    color: var(--sage);
+    position: relative;
+  }
+
+  .action-btn:hover:not(.disabled) {
+    background: var(--sage-lightest);
+    border-color: var(--sage);
+  }
+
+  .action-btn.disabled {
+    border-color: var(--divider);
+    color: var(--disabled);
+    cursor: default;
+    pointer-events: none;
+    background: var(--bg);
+  }
+
+  .action-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .action-btn.playing {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(124, 144, 112, 0.3);
+  }
+
+  /* Tooltip */
+  .action-btn[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* ===== AUDIO PLAYER ===== */
+  .audio-player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1.5px solid var(--divider);
+    padding: 14px 24px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .audio-player.visible {
+    display: flex;
+  }
+
+  .player-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .player-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .player-voice {
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  .player-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .player-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .player-btn.play-pause {
+    background: var(--sage);
+    color: var(--white);
+  }
+
+  .player-btn.play-pause:hover {
+    background: var(--sage-dark);
+  }
+
+  .player-btn.close {
+    background: transparent;
+    color: var(--text-light);
+    border-radius: 50%;
+  }
+
+  .player-btn.close:hover {
+    background: var(--sage-lightest);
+    color: var(--text);
+  }
+
+  .player-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .player-progress-wrap {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .player-time {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    min-width: 36px;
+    text-align: center;
+  }
+
+  .player-progress {
+    flex: 1;
+    height: 4px;
+    background: var(--sage-lighter);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .player-progress-bar {
+    height: 100%;
+    background: var(--sage);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 600px) {
+    .header { padding: 36px 20px 24px; }
+    .header h1 { font-size: 2.2rem; }
+    .header-actions { flex-direction: column; align-items: center; }
+    .header-compact { padding: 8px 16px; }
+    .header-compact h2 { font-size: 1.1rem; }
+    .voice-selector { padding: 24px 16px 0; }
+    .voice-options { gap: 8px; flex-wrap: wrap; }
+    .voice-options .voice-opt { font-size: 0.9rem; padding: 9px 18px; min-width: 80px; }
+    .song-list { padding: 0 16px; }
+    .song-item { padding: 14px 16px; }
+    .song-title { font-size: 1.05rem; }
+    .song-actions { gap: 5px; margin-left: 10px; }
+    .action-btn { width: 36px; height: 36px; }
+    .action-btn svg { width: 16px; height: 16px; }
+    .player-progress-wrap { display: none; }
+    .audio-player { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== EXISTING UI — replicated from spec ===== -->
+
+<header class="header">
+  <h1>Partitions & Enregistrements</h1>
+  <p class="subtitle">Mariage Diane et Alexandre</p>
+  <div class="header-actions">
+    <a href="partitions.pdf" class="header-btn" target="_blank" title="Telecharger toutes les partitions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Partitions
+    </a>
+    <a href="https://open.spotify.com/playlist/6UnnMPipLMPDI4oM6Mgplf" class="header-btn" target="_blank" rel="noopener" title="Playlist Spotify">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381C8.88 5.82 15.9 6.12 20.1 8.82c.541.3.719 1.02.42 1.56-.301.42-1.02.6-1.439.3z"/></svg>
+      Spotify
+    </a>
+    <a href="#" class="header-btn" target="_blank" rel="noopener" title="Playlist YouTube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      YouTube
+    </a>
+  </div>
+</header>
+
+<!-- Compact header (slides in on scroll) -->
+<div class="header-compact" id="headerCompact">
+  <h2>Partitions & Enregistrements</h2>
+  <div class="compact-actions">
+    <a href="partitions.pdf" class="compact-btn" target="_blank" title="Partitions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </a>
+    <a href="https://open.spotify.com/playlist/6UnnMPipLMPDI4oM6Mgplf" class="compact-btn" target="_blank" rel="noopener" title="Spotify">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381C8.88 5.82 15.9 6.12 20.1 8.82c.541.3.719 1.02.42 1.56-.301.42-1.02.6-1.439.3z"/></svg>
+    </a>
+    <a href="#" class="compact-btn" target="_blank" rel="noopener" title="YouTube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </div>
+</div>
+
+<!-- ===== FEATURE SPEC START: Voice Part Browser ===== -->
+
+<section class="voice-selector">
+  <label for="voice">Sélectionnez votre voix</label>
+  <div class="voice-options">
+    <input type="radio" name="voice" id="voice-soprano" value="soprano">
+    <label class="voice-opt" for="voice-soprano">Soprane</label>
+    <input type="radio" name="voice" id="voice-alto" value="alto">
+    <label class="voice-opt" for="voice-alto">Alto</label>
+    <input type="radio" name="voice" id="voice-tenor" value="tenor">
+    <label class="voice-opt" for="voice-tenor">Ténor</label>
+    <input type="radio" name="voice" id="voice-basse" value="basse">
+    <label class="voice-opt" for="voice-basse">Basse</label>
+  </div>
+</section>
+
+<div class="song-list" id="songList"></div>
+
+<!-- Sticky audio player -->
+<div class="audio-player" id="audioPlayer">
+  <div class="player-info">
+    <div class="player-title" id="playerTitle">—</div>
+    <div class="player-voice" id="playerVoice"></div>
+  </div>
+  <div class="player-progress-wrap">
+    <span class="player-time" id="playerTimeCurrent">0:00</span>
+    <div class="player-progress" id="playerProgress">
+      <div class="player-progress-bar" id="playerProgressBar"></div>
+    </div>
+    <span class="player-time" id="playerTimeTotal">0:00</span>
+  </div>
+  <div class="player-controls">
+    <button class="player-btn play-pause" id="playerPlayPause" aria-label="Lecture / Pause">
+      <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+      <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+    </button>
+    <button class="player-btn close" id="playerClose" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<audio id="audioEl" preload="none"></audio>
+
+<script>
+// ===== SONG DATA =====
+const songs = [
+  // Ave Maria, Caccini — hidden from display, files kept in partitions/ and audio/
+  {
+    id: 2,
+    title: "Criez de joie, vous les pauvres de cœur",
+    subtitle: "",
+    sheetMusic: "partitions/02-criez-de-joie.pdf",
+    audio: { soprano: "audio/02-criez-de-joie-soprano.mp3", alto: "audio/02-criez-de-joie-alto.mp3", tenor: "audio/02-criez-de-joie-tenor.mp3", basse: "audio/02-criez-de-joie-basse.mp3", tous: "" }
+  },
+  {
+    id: 3,
+    title: "Kyrie, Saint Claude la Colombière",
+    subtitle: "",
+    sheetMusic: "partitions/03-kyrie-saint-claude.pdf",
+    audio: { soprano: "audio/03-kyrie-soprano.mp3", alto: "audio/03-kyrie-alto.mp3", tenor: "audio/03-kyrie-tenor.mp3", basse: "audio/03-kyrie-basse.mp3", tous: "" }
+  },
+  {
+    id: 4,
+    title: "Gloria, Saint Paul",
+    subtitle: "",
+    sheetMusic: "partitions/04-gloria-saint-paul.pdf",
+    audio: { soprano: "audio/04-gloria-soprano.mp3", alto: "audio/04-gloria-alto.mp3", tenor: "audio/04-gloria-tenor.mp3", basse: "audio/04-gloria-basse.mp3", tous: "" }
+  },
+  {
+    id: 5,
+    title: "Psaume 26",
+    subtitle: "",
+    sheetMusic: "partitions/05-psaume-26.pdf",
+    audio: { soprano: "audio/05-psaume-26-soprano.mp3", alto: "audio/05-psaume-26-alto.mp3", tenor: "audio/05-psaume-26-tenor.mp3", basse: "audio/05-psaume-26-basse.mp3", tous: "" }
+  },
+  {
+    id: 6,
+    title: "Alleluia, Cantico dell'Agnello",
+    subtitle: "",
+    sheetMusic: "partitions/06-cantico-agnello.pdf",
+    audio: { soprano: "audio/06-cantico-agnello-soprano.mp3", alto: "audio/06-cantico-agnello-alto.mp3", tenor: "audio/06-cantico-agnello-tenor.mp3", basse: "audio/06-cantico-agnello-basse.mp3", tous: "audio/06-cantico-agnello-tous.mp3" }
+  },
+  {
+    id: 7,
+    title: "Gloire à toi, Esprit de feu",
+    subtitle: "",
+    sheetMusic: "partitions/07-gloire-esprit-de-feu.pdf",
+    audio: { soprano: "audio/07-gloire-esprit-soprano.mp3", alto: "audio/07-gloire-esprit-alto.mp3", tenor: "audio/07-gloire-esprit-tenor.mp3", basse: "audio/07-gloire-esprit-basse.mp3", tous: "" }
+  },
+  {
+    id: 8,
+    title: "Laudate Dominum",
+    subtitle: "",
+    sheetMusic: "partitions/08-laudate-dominum.pdf",
+    audio: { soprano: "audio/08-laudate-dominum-soprano.mp3", alto: "audio/08-laudate-dominum-alto.mp3", tenor: "audio/08-laudate-dominum-tenor.mp3", basse: "audio/08-laudate-dominum-basse.mp3", tous: "audio/08-laudate-dominum-tous.mp3" }
+  },
+  {
+    id: 9,
+    title: "Chant de la promesse",
+    subtitle: "",
+    sheetMusic: "partitions/09-chant-de-la-promesse.pdf",
+    audio: { soprano: "audio/09-chant-promesse-soprano.mp3", alto: "audio/09-chant-promesse-alto.mp3", tenor: "audio/09-chant-promesse-soprano.mp3", basse: "audio/09-chant-promesse-basse.mp3", tous: "" }
+  },
+  {
+    id: 10,
+    title: "Hymne des Chérubins",
+    subtitle: "",
+    sheetMusic: "partitions/10-hymne-des-cherubins.pdf",
+    audio: { soprano: "audio/10-hymne-cherubins-soprano.mp3", alto: "audio/10-hymne-cherubins-alto.mp3", tenor: "", basse: "", tous: "" }
+  },
+  {
+    id: 11,
+    title: "Sanctus, Saint François-Xavier",
+    subtitle: "",
+    sheetMusic: "partitions/11-sanctus-saint-francois-xavier.pdf",
+    audio: { soprano: "", alto: "", tenor: "", basse: "", tous: "" }
+  },
+  {
+    id: 12,
+    title: "Agnus, Saint Claude la Colombière",
+    subtitle: "",
+    sheetMusic: "partitions/12-agnus-saint-claude.pdf",
+    audio: { soprano: "audio/12-agnus-soprano.mp3", alto: "audio/12-agnus-alto.mp3", tenor: "audio/12-agnus-tenor.mp3", basse: "audio/12-agnus-basse.mp3", tous: "" }
+  },
+  {
+    id: 13,
+    title: "À l'Agneau de Dieu",
+    subtitle: "",
+    sheetMusic: "partitions/13-a-l-agneau-de-dieu.pdf",
+    audio: { soprano: "", alto: "", tenor: "", basse: "", tous: "" }
+  },
+  {
+    id: 14,
+    title: "Anima Christi",
+    subtitle: "",
+    sheetMusic: "partitions/14-anima-christi.pdf",
+    audio: { soprano: "audio/14-anima-christi-soprano.mp3", alto: "audio/14-anima-christi-alto.mp3", tenor: "audio/14-anima-christi-tenor.mp3", basse: "audio/14-anima-christi-basse.mp3", tous: "" }
+  },
+  {
+    id: 15,
+    title: "O Clemens Maria",
+    subtitle: "",
+    sheetMusic: "partitions/15-o-clemens-maria.pdf",
+    audio: { soprano: "audio/15-o-clemens-maria-soprano.mp3", alto: "audio/15-o-clemens-maria-alto.mp3", tenor: "audio/15-o-clemens-maria-tenor.mp3", basse: "audio/15-o-clemens-maria-basse.mp3", tous: "" }
+  },
+  {
+    id: 16,
+    title: "Vivre comme le Christ",
+    subtitle: "",
+    sheetMusic: "partitions/16-vivre-comme-le-christ.pdf",
+    audio: { soprano: "audio/16-vivre-comme-le-christ-soprano.mp3", alto: "audio/16-vivre-comme-le-christ-alto.mp3", tenor: "audio/16-vivre-comme-le-christ-tenor.mp3", basse: "audio/16-vivre-comme-le-christ-basse.mp3", tous: "" }
+  }
+];
+
+// ===== SVG ICONS =====
+const icons = {
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  noteSolo: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>',
+  noteMulti: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+};
+
+// ===== STATE =====
+let selectedVoice = null;
+let currentSongId = null;
+let currentType = null; // 'solo' or 'tous'
+
+const audioEl = document.getElementById('audioEl');
+const playerEl = document.getElementById('audioPlayer');
+const playerTitle = document.getElementById('playerTitle');
+const playerVoice = document.getElementById('playerVoice');
+const playerPlayPause = document.getElementById('playerPlayPause');
+const iconPlay = document.getElementById('iconPlay');
+const iconPause = document.getElementById('iconPause');
+const playerProgress = document.getElementById('playerProgress');
+const playerProgressBar = document.getElementById('playerProgressBar');
+const playerTimeCurrent = document.getElementById('playerTimeCurrent');
+const playerTimeTotal = document.getElementById('playerTimeTotal');
+const playerClose = document.getElementById('playerClose');
+
+// ===== RENDER SONG LIST =====
+function renderSongs() {
+  const list = document.getElementById('songList');
+  list.innerHTML = songs.map((song, idx) => {
+    const hasSheet = !!song.sheetMusic;
+    const hasSolo = selectedVoice && !!song.audio[selectedVoice];
+    const hasTous = !!song.audio.tous;
+    const soloDisabled = !selectedVoice || !hasSolo;
+    const tousDisabled = !hasTous;
+
+    const soloTooltip = !selectedVoice
+      ? 'Selectionnez une voix'
+      : (!hasSolo ? 'Pas d\'enregistrement disponible' : 'Ecouter ma voix');
+    const tousTooltip = !hasTous ? 'Pas d\'enregistrement disponible' : 'Ecouter l\'ensemble';
+
+    const isSoloPlaying = currentSongId === song.id && currentType === 'solo';
+    const isTousPlaying = currentSongId === song.id && currentType === 'tous';
+
+    return `<div class="song-item">
+      <div class="song-info">
+        <span class="song-number">${idx + 1}.</span>
+        <div class="song-text">
+          <div class="song-title">${song.title}</div>
+          ${song.subtitle ? `<div class="song-subtitle">${song.subtitle}</div>` : ''}
+        </div>
+      </div>
+      <div class="song-actions">
+        <button class="action-btn${hasSheet ? '' : ' disabled'}" data-tooltip="Partition" ${hasSheet ? `onclick="openSheet(${song.id})"` : ''}>
+          ${icons.eye}
+        </button>
+        <button class="action-btn${soloDisabled ? ' disabled' : ''}${isSoloPlaying ? ' playing' : ''}" data-tooltip="${soloTooltip}" ${soloDisabled ? '' : `onclick="playSolo(${song.id})"`}>
+          ${icons.noteSolo}
+        </button>
+        <button class="action-btn${tousDisabled ? ' disabled' : ''}${isTousPlaying ? ' playing' : ''}" data-tooltip="${tousTooltip}" ${tousDisabled ? '' : `onclick="playTous(${song.id})"`}>
+          ${icons.noteMulti}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== VOICE SELECTION =====
+document.querySelectorAll('input[name="voice"]').forEach(radio => {
+  radio.addEventListener('change', e => {
+    selectedVoice = e.target.value;
+    renderSongs();
+  });
+});
+
+// ===== PLAYBACK =====
+function playSolo(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (!song || !selectedVoice || !song.audio[selectedVoice]) return;
+  startPlayback(song, selectedVoice, 'solo');
+}
+
+function playTous(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (!song || !song.audio.tous) return;
+  startPlayback(song, 'tous', 'tous');
+}
+
+function startPlayback(song, voiceKey, type) {
+  currentSongId = song.id;
+  currentType = type;
+  audioEl.src = song.audio[voiceKey];
+  audioEl.play();
+  playerTitle.textContent = song.title;
+  const voiceLabels = { soprano: 'Soprane', alto: 'Alto', tenor: 'Tenor', basse: 'Basse', tous: 'Toutes les voix' };
+  playerVoice.textContent = voiceLabels[voiceKey] || '';
+  playerEl.classList.add('visible');
+  updatePlayPauseIcon(true);
+  renderSongs();
+}
+
+function openSheet(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (song && song.sheetMusic) {
+    window.open(song.sheetMusic, '_blank');
+  }
+}
+
+// ===== PLAYER CONTROLS =====
+playerPlayPause.addEventListener('click', () => {
+  if (audioEl.paused) {
+    audioEl.play();
+    updatePlayPauseIcon(true);
+  } else {
+    audioEl.pause();
+    updatePlayPauseIcon(false);
+  }
+});
+
+playerClose.addEventListener('click', () => {
+  audioEl.pause();
+  audioEl.src = '';
+  playerEl.classList.remove('visible');
+  currentSongId = null;
+  currentType = null;
+  renderSongs();
+});
+
+function updatePlayPauseIcon(playing) {
+  iconPlay.style.display = playing ? 'none' : 'block';
+  iconPause.style.display = playing ? 'block' : 'none';
+}
+
+// Progress
+audioEl.addEventListener('timeupdate', () => {
+  if (audioEl.duration) {
+    const pct = (audioEl.currentTime / audioEl.duration) * 100;
+    playerProgressBar.style.width = pct + '%';
+    playerTimeCurrent.textContent = formatTime(audioEl.currentTime);
+    playerTimeTotal.textContent = formatTime(audioEl.duration);
+  }
+});
+
+audioEl.addEventListener('ended', () => {
+  updatePlayPauseIcon(false);
+  currentSongId = null;
+  currentType = null;
+  renderSongs();
+});
+
+audioEl.addEventListener('pause', () => updatePlayPauseIcon(false));
+audioEl.addEventListener('play', () => updatePlayPauseIcon(true));
+
+// Seek
+playerProgress.addEventListener('click', e => {
+  if (!audioEl.duration) return;
+  const rect = playerProgress.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  audioEl.currentTime = pct * audioEl.duration;
+});
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+// ===== COMPACT HEADER =====
+const headerEl = document.querySelector('.header');
+const compactEl = document.getElementById('headerCompact');
+window.addEventListener('scroll', () => {
+  const show = window.scrollY > headerEl.offsetHeight - 60;
+  compactEl.classList.toggle('visible', show);
+}, { passive: true });
+
+// ===== INIT =====
+renderSongs();
+</script>
+
+<!-- ===== FEATURE SPEC END ===== -->
+
+</body>
+</html>
