@@ -460,6 +460,166 @@
     transition: width 0.1s linear;
   }
 
+  /* ===== TWO-COLUMN LAYOUT (desktop only) ===== */
+  .main-layout {
+    display: block;
+  }
+
+  .main-left {
+    /* default: full width, single column */
+  }
+
+  .sheet-panel {
+    display: none;
+  }
+
+  @media (min-width: 901px) {
+    body {
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 0;
+    }
+
+    .header-compact {
+      display: none !important;
+    }
+
+    .main-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .main-left {
+      flex: 0 0 50%;
+      max-width: 50%;
+      overflow-y: auto;
+      padding-bottom: 80px;
+    }
+
+    .voice-selector {
+      max-width: none;
+    }
+
+    .song-list {
+      max-width: none;
+    }
+
+    .sheet-panel {
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 50%;
+      max-width: 50%;
+      min-height: 0;
+      border-left: 1px solid var(--divider);
+      background: var(--white);
+    }
+
+    .sheet-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--divider);
+      flex-shrink: 0;
+    }
+
+    .sheet-panel-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-right: 12px;
+    }
+
+    .sheet-panel-actions {
+      display: none;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sheet-panel-actions.visible {
+      display: flex;
+    }
+
+    .sheet-panel-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--sage-light);
+      background: var(--white);
+      color: var(--sage-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .sheet-panel-btn:hover {
+      background: var(--sage-lightest);
+      border-color: var(--sage);
+    }
+
+    .sheet-panel-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sheet-panel-body {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sheet-panel-body iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .sheet-panel-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-lighter);
+      gap: 12px;
+    }
+
+    .sheet-panel-empty svg {
+      width: 48px;
+      height: 48px;
+      color: var(--sage-lighter);
+    }
+
+    .sheet-panel-empty span {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-style: italic;
+    }
+
+    /* Audio player spans full width on desktop */
+    .audio-player {
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+  }
+
   /* Mobile adjustments */
   @media (max-width: 600px) {
     .header { padding: 36px 20px 24px; }
@@ -522,21 +682,45 @@
 
 <!-- ===== FEATURE SPEC START: Voice Part Browser ===== -->
 
-<section class="voice-selector">
-  <label for="voice">Sélectionnez votre voix</label>
-  <div class="voice-options">
-    <input type="radio" name="voice" id="voice-soprano" value="soprano">
-    <label class="voice-opt" for="voice-soprano">Soprane</label>
-    <input type="radio" name="voice" id="voice-alto" value="alto">
-    <label class="voice-opt" for="voice-alto">Alto</label>
-    <input type="radio" name="voice" id="voice-tenor" value="tenor">
-    <label class="voice-opt" for="voice-tenor">Ténor</label>
-    <input type="radio" name="voice" id="voice-basse" value="basse">
-    <label class="voice-opt" for="voice-basse">Basse</label>
-  </div>
-</section>
+<div class="main-layout">
+  <div class="main-left">
+    <section class="voice-selector">
+      <label for="voice">Sélectionnez votre voix</label>
+      <div class="voice-options">
+        <input type="radio" name="voice" id="voice-soprano" value="soprano">
+        <label class="voice-opt" for="voice-soprano">Soprane</label>
+        <input type="radio" name="voice" id="voice-alto" value="alto">
+        <label class="voice-opt" for="voice-alto">Alto</label>
+        <input type="radio" name="voice" id="voice-tenor" value="tenor">
+        <label class="voice-opt" for="voice-tenor">Ténor</label>
+        <input type="radio" name="voice" id="voice-basse" value="basse">
+        <label class="voice-opt" for="voice-basse">Basse</label>
+      </div>
+    </section>
 
-<div class="song-list" id="songList"></div>
+    <div class="song-list" id="songList"></div>
+  </div>
+
+  <div class="sheet-panel" id="sheetPanel">
+    <div class="sheet-panel-header">
+      <span class="sheet-panel-title" id="sheetTitle">Partition</span>
+      <div class="sheet-panel-actions">
+        <button class="sheet-panel-btn" id="sheetNewTab" aria-label="Ouvrir dans un nouvel onglet" title="Nouvel onglet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </button>
+        <button class="sheet-panel-btn" id="sheetClose" aria-label="Fermer la partition" title="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="sheet-panel-body" id="sheetBody">
+      <div class="sheet-panel-empty" id="sheetEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        <span>Sélectionnez un morceau pour afficher sa partition</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Sticky audio player -->
 <div class="audio-player" id="audioPlayer">
@@ -773,14 +957,59 @@ function startPlayback(song, voiceKey, type) {
   playerEl.classList.add('visible');
   updatePlayPauseIcon(true);
   renderSongs();
+  // On desktop, also show the sheet music
+  if (isDesktopLayout() && song.sheetMusic) {
+    openSheet(song.id);
+  }
+}
+
+// ===== SHEET MUSIC PANEL (desktop) =====
+const sheetPanel = document.getElementById('sheetPanel');
+const sheetTitle = document.getElementById('sheetTitle');
+const sheetBody = document.getElementById('sheetBody');
+const sheetEmpty = document.getElementById('sheetEmpty');
+const sheetCloseBtn = document.getElementById('sheetClose');
+const sheetNewTabBtn = document.getElementById('sheetNewTab');
+const sheetActions = document.querySelector('.sheet-panel-actions');
+let currentSheetUrl = null;
+
+function isDesktopLayout() {
+  return window.matchMedia('(min-width: 901px)').matches;
 }
 
 function openSheet(songId) {
   const song = songs.find(s => s.id === songId);
-  if (song && song.sheetMusic) {
+  if (!song || !song.sheetMusic) return;
+
+  if (!isDesktopLayout()) {
     window.open(song.sheetMusic, '_blank');
+    return;
   }
+
+  currentSheetUrl = song.sheetMusic;
+  sheetTitle.textContent = song.title;
+  sheetEmpty.style.display = 'none';
+  sheetActions.classList.add('visible');
+  // Remove old iframe if any, then add new one
+  const oldIframe = sheetBody.querySelector('iframe');
+  if (oldIframe) oldIframe.remove();
+  const iframe = document.createElement('iframe');
+  iframe.src = song.sheetMusic;
+  sheetBody.appendChild(iframe);
 }
+
+sheetCloseBtn.addEventListener('click', () => {
+  const iframe = sheetBody.querySelector('iframe');
+  if (iframe) iframe.remove();
+  sheetEmpty.style.display = '';
+  sheetTitle.textContent = 'Partition';
+  sheetActions.classList.remove('visible');
+  currentSheetUrl = null;
+});
+
+sheetNewTabBtn.addEventListener('click', () => {
+  if (currentSheetUrl) window.open(currentSheetUrl, '_blank');
+});
 
 // ===== PLAYER CONTROLS =====
 playerPlayPause.addEventListener('click', () => {
@@ -841,7 +1070,7 @@ function formatTime(s) {
   return m + ':' + (sec < 10 ? '0' : '') + sec;
 }
 
-// ===== COMPACT HEADER =====
+// ===== COMPACT HEADER (mobile only — hidden on desktop) =====
 const headerEl = document.querySelector('.header');
 const compactEl = document.getElementById('headerCompact');
 window.addEventListener('scroll', () => {
