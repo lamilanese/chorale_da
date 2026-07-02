@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sage: #7C9070;
+    --sage: #7c9070;
     --sage-light: #A8BDA0;
     --sage-lighter: #D4E0D0;
     --sage-lightest: #EEF2EC;
@@ -518,12 +518,16 @@
     }
 
     .sheet-panel-header {
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: space-between;
       padding: 14px 20px;
       border-bottom: 1px solid var(--divider);
       flex-shrink: 0;
+    }
+
+    .sheet-panel-header.visible {
+      display: flex;
     }
 
     .sheet-panel-title {
@@ -620,6 +624,36 @@
     }
   }
 
+  /* ===== ICON LEGEND (mobile only) ===== */
+  .icon-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 14px 16px 0;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .icon-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    color: var(--text-light);
+  }
+
+  .icon-legend-item svg {
+    width: 16px;
+    height: 16px;
+    color: var(--sage);
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 901px) {
+    .icon-legend { display: none; }
+  }
+
   /* Mobile adjustments */
   @media (max-width: 600px) {
     .header { padding: 36px 20px 24px; }
@@ -697,6 +731,21 @@
         <label class="voice-opt" for="voice-basse">Basse</label>
       </div>
     </section>
+
+    <div class="icon-legend">
+      <span class="icon-legend-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Partition
+      </span>
+      <span class="icon-legend-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+        Ma voix
+      </span>
+      <span class="icon-legend-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Ensemble
+      </span>
+    </div>
 
     <div class="song-list" id="songList"></div>
   </div>
@@ -971,6 +1020,7 @@ const sheetEmpty = document.getElementById('sheetEmpty');
 const sheetCloseBtn = document.getElementById('sheetClose');
 const sheetNewTabBtn = document.getElementById('sheetNewTab');
 const sheetActions = document.querySelector('.sheet-panel-actions');
+const sheetHeader = document.querySelector('.sheet-panel-header');
 let currentSheetUrl = null;
 
 function isDesktopLayout() {
@@ -989,6 +1039,7 @@ function openSheet(songId) {
   currentSheetUrl = song.sheetMusic;
   sheetTitle.textContent = song.title;
   sheetEmpty.style.display = 'none';
+  sheetHeader.classList.add('visible');
   sheetActions.classList.add('visible');
   // Remove old iframe if any, then add new one
   const oldIframe = sheetBody.querySelector('iframe');
@@ -1003,6 +1054,7 @@ sheetCloseBtn.addEventListener('click', () => {
   if (iframe) iframe.remove();
   sheetEmpty.style.display = '';
   sheetTitle.textContent = 'Partition';
+  sheetHeader.classList.remove('visible');
   sheetActions.classList.remove('visible');
   currentSheetUrl = null;
 });
