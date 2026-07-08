@@ -23,6 +23,35 @@
     --disabled: #C8C8C8;
     --font-display: 'Cormorant Garamond', Georgia, serif;
     --font-body: 'Cormorant Garamond', Georgia, serif;
+    --voice: var(--sage);
+    --voice-light: var(--sage-light);
+    --voice-lightest: var(--sage-lightest);
+    --voice-shadow: rgba(124, 144, 112, 0.3);
+  }
+
+  body[data-voice="soprano"] {
+    --voice: #947A82;
+    --voice-light: #BEA4AC;
+    --voice-lightest: #F2ECED;
+    --voice-shadow: rgba(148, 122, 130, 0.3);
+  }
+  body[data-voice="alto"] {
+    --voice: #8E8668;
+    --voice-light: #B4AE90;
+    --voice-lightest: #F0EEE4;
+    --voice-shadow: rgba(142, 134, 104, 0.3);
+  }
+  body[data-voice="tenor"] {
+    --voice: #688E86;
+    --voice-light: #90B4AE;
+    --voice-lightest: #E4F0EE;
+    --voice-shadow: rgba(104, 142, 134, 0.3);
+  }
+  body[data-voice="basse"] {
+    --voice: #707C8E;
+    --voice-light: #98A4B4;
+    --voice-lightest: #E6EAF0;
+    --voice-shadow: rgba(112, 124, 142, 0.3);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -230,10 +259,29 @@
   }
 
   .voice-options input[type="radio"]:checked + .voice-opt {
-    background: var(--sage);
+    background: var(--voice);
     color: var(--white);
-    border-color: var(--sage);
-    box-shadow: 0 2px 8px rgba(124, 144, 112, 0.3);
+    border-color: var(--voice);
+    box-shadow: 0 2px 8px var(--voice-shadow);
+    transition: background 0.35s, border-color 0.35s, box-shadow 0.35s;
+  }
+
+  .action-btn.solo:not(.disabled) {
+    color: var(--voice);
+    border-color: var(--voice-light);
+    transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+  }
+
+  .action-btn.solo:not(.disabled):hover {
+    background: var(--voice-lightest);
+    border-color: var(--voice);
+  }
+
+  .action-btn.solo.playing {
+    background: var(--voice);
+    border-color: var(--voice);
+    color: var(--white);
+    box-shadow: 0 2px 8px var(--voice-shadow);
   }
 
   /* ===== SONG LIST ===== */
@@ -1069,7 +1117,7 @@ function renderSongs() {
         <button class="action-btn${hasSheet ? '' : ' disabled'}" data-tooltip="Partition" ${hasSheet ? `onclick="openSheet(${song.id})"` : ''}>
           ${icons.eye}
         </button>
-        <button class="action-btn${soloDisabled ? ' disabled' : ''}${isSoloPlaying ? ' playing' : ''}" data-tooltip="${soloTooltip}" ${soloDisabled ? '' : `onclick="playSolo(${song.id})"`}>
+        <button class="action-btn solo${soloDisabled ? ' disabled' : ''}${isSoloPlaying ? ' playing' : ''}" data-tooltip="${soloTooltip}" ${soloDisabled ? '' : `onclick="playSolo(${song.id})"`}>
           ${icons.noteSolo}
         </button>
         <button class="action-btn${tousDisabled ? ' disabled' : ''}${isTousPlaying ? ' playing' : ''}" data-tooltip="${tousTooltip}" ${tousDisabled ? '' : `onclick="playTous(${song.id})"`}>
@@ -1084,6 +1132,7 @@ function renderSongs() {
 document.querySelectorAll('input[name="voice"]').forEach(radio => {
   radio.addEventListener('change', e => {
     selectedVoice = e.target.value;
+    document.body.dataset.voice = selectedVoice;
     renderSongs();
   });
 });
@@ -1136,6 +1185,16 @@ function isDesktopLayout() {
 function openSheet(songId) {
   const song = songs.find(s => s.id === songId);
   if (!song || !song.sheetMusic) return;
+
+  // Stop playback if switching to a different song's sheet
+  if (currentSongId !== null && currentSongId !== songId) {
+    audioEl.pause();
+    audioEl.src = '';
+    playerEl.classList.remove('visible');
+    currentSongId = null;
+    currentType = null;
+    renderSongs();
+  }
 
   if (!isDesktopLayout()) {
     window.open(song.sheetMusic, '_blank');
