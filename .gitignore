@@ -1,6 +1,7 @@
 .claude
 .vscode
 generate_partitions.py
+partitions_all.pdf
 Pupitres chorale.pdf
 specs.md
 download_songs.py
