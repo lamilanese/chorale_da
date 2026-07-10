@@ -796,6 +796,45 @@
     .icon-legend { display: none; }
   }
 
+  /* ===== INSTRUMENTAL ROWS ===== */
+  .song-item.instrumental {
+    background: #F3F4F1;
+  }
+
+  .song-item.instrumental .action-btn {
+    background: #F3F4F1;
+  }
+
+  .song-item.instrumental .action-btn:hover:not(.disabled) {
+    background: #E8EAE5;
+  }
+
+  .instrumental-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--text-light);
+    background: var(--sage-lightest);
+    border: 1px solid var(--divider);
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .instrumental-badge {
+      display: block;
+      margin-left: 0;
+      margin-top: 3px;
+      width: fit-content;
+    }
+  }
+
   /* Mobile adjustments */
   @media (max-width: 600px) {
     .header { padding: 36px 20px 24px; }
@@ -945,7 +984,14 @@
 <script>
 // ===== SONG DATA =====
 const songs = [
-  // Ave Maria, Caccini — hidden from display, files kept in partitions/ and audio/
+  {
+    id: 1,
+    title: "Ave Maria de Caccini",
+    subtitle: "Entrée des mariés",
+    instrumental: true,
+    sheetMusic: "partitions/01-ave-maria-caccini.pdf",
+    audio: { soprano: "", alto: "", tenor: "", basse: "", tous: "audio/01-ave-maria-caccini-tous.mp3" }
+  },
   {
     id: 2,
     title: "Criez de joie, vous les pauvres de cœur",
@@ -1000,7 +1046,7 @@ const songs = [
     title: "Chant de la promesse",
     subtitle: "",
     sheetMusic: "partitions/09-chant-de-la-promesse.pdf",
-    audio: { soprano: "audio/09-chant-promesse-soprano.mp3", alto: "audio/09-chant-promesse-alto.mp3", tenor: "audio/09-chant-promesse-soprano.mp3", basse: "audio/09-chant-promesse-basse.mp3", tous: "audio/09-chant-promesse-tous.mp3" }
+    audio: { soprano: "audio/09-chant-promesse-soprano.mp3", alto: "", tenor: "", basse: "", tous: "audio/09-chant-promesse-tous.mp3" }
   },
   {
     id: 95,
@@ -1065,6 +1111,7 @@ const icons = {
   eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
   noteSolo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="13" rx="3"/></svg>',
   noteMulti: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  violin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 8c-1.4 0-2.6-.8-3.2-2A6.87 6.87 0 0 0 2 9v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-8.5C22 9.6 20.4 8 18.5 8"/><path d="M2 14h20"/><path d="M6 14v4"/><path d="M10 14v4"/><path d="M14 14v4"/><path d="M18 14v4"/></svg>',
   loop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>'
 };
 
@@ -1092,24 +1139,27 @@ function renderSongs() {
   const list = document.getElementById('songList');
   list.innerHTML = songs.map((song, idx) => {
     const hasSheet = !!song.sheetMusic;
-    const hasSolo = selectedVoice && !!song.audio[selectedVoice];
+    const isInstrumental = !!song.instrumental;
+    const hasSolo = !isInstrumental && selectedVoice && !!song.audio[selectedVoice];
     const hasTous = !!song.audio.tous;
-    const soloDisabled = !selectedVoice || !hasSolo;
+    const soloDisabled = isInstrumental || !selectedVoice || !hasSolo;
     const tousDisabled = !hasTous;
 
-    const soloTooltip = !selectedVoice
-      ? 'Sélectionnez une voix'
-      : (!hasSolo ? 'Pas d\'enregistrement disponible' : 'Écouter ma voix');
+    const soloTooltip = isInstrumental
+      ? 'Instruments seuls'
+      : (!selectedVoice ? 'Sélectionnez une voix' : (!hasSolo ? 'Pas d\'enregistrement disponible' : 'Écouter ma voix'));
     const tousTooltip = !hasTous ? 'Pas d\'enregistrement disponible' : 'Écouter l\'ensemble';
 
     const isSoloPlaying = currentSongId === song.id && currentType === 'solo';
     const isTousPlaying = currentSongId === song.id && currentType === 'tous';
 
-    return `<div class="song-item">
+    const badge = isInstrumental ? '<span class="instrumental-badge">Instruments + soliste</span>' : '';
+
+    return `<div class="song-item${isInstrumental ? ' instrumental' : ''}">
       <div class="song-info">
         <span class="song-number">${idx + 1}.</span>
         <div class="song-text">
-          <div class="song-title">${song.title}</div>
+          <div class="song-title">${song.title}${badge}</div>
           ${song.subtitle ? `<div class="song-subtitle">${song.subtitle}</div>` : ''}
         </div>
       </div>
@@ -1117,8 +1167,8 @@ function renderSongs() {
         <button class="action-btn${hasSheet ? '' : ' disabled'}" data-tooltip="Partition" ${hasSheet ? `onclick="openSheet(${song.id})"` : ''}>
           ${icons.eye}
         </button>
-        <button class="action-btn solo${soloDisabled ? ' disabled' : ''}${isSoloPlaying ? ' playing' : ''}" data-tooltip="${soloTooltip}" ${soloDisabled ? '' : `onclick="playSolo(${song.id})"`}>
-          ${icons.noteSolo}
+        <button class="action-btn${isInstrumental || soloDisabled ? ' disabled' : ' solo'}${isSoloPlaying ? ' playing' : ''}" data-tooltip="${soloTooltip}" ${(!isInstrumental && !soloDisabled) ? `onclick="playSolo(${song.id})"` : ''}>
+          ${isInstrumental ? icons.violin : icons.noteSolo}
         </button>
         <button class="action-btn${tousDisabled ? ' disabled' : ''}${isTousPlaying ? ' playing' : ''}" data-tooltip="${tousTooltip}" ${tousDisabled ? '' : `onclick="playTous(${song.id})"`}>
           ${icons.noteMulti}
